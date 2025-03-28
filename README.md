@@ -58,6 +58,11 @@ File names for the different task configurations should be:
 | Two-step task | `trial_info_two-step.json` |
 | Model-free learning task (not yet implemented) | `trial_info_model-free.json` |
 
+> [!NOTE]
+> The `trial_info_{task}.json` files contain outcome probabilities (e.g., `pinkExplodeChance`), but these are not used to generate the outcomes. Instead the outcomes are coded as binary values in the relevant columns (e.g., `purpleExplode`). This means that **the task outcomes will be consistent across participants**.
+>
+> We also assume that ball colour outcomes (i.e., if one ball is purple, the other would be pink), since participants only ever see one ball at a time. In practice, this means that we rely only on the `purpleOption{side}` variable in the JSON files, and the `pinkOption{side}` variable is ignored, since if one ball is purple, the other must be pink.
+
 ### URL parameters
 
 Some useful task settings can be specified through URL parameters. These are listed below:
