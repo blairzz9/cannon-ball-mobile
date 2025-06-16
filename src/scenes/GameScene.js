@@ -526,6 +526,64 @@ class GameScene extends Phaser.Scene {
 
         // Start the first trial
         this.startNewTrial();
+
+        // Add touch buttons for mobile control
+        this.leftButton = this.add.rectangle(100, 550, 120, 120, 0x000000, 0.3);
+        this.leftButton.setInteractive();
+        this.leftButton.setDepth(1000); // 确保按钮在最上层
+        
+        // 为按钮添加专门的点击处理
+        this.leftButton.on('pointerdown', (pointer, localX, localY, event) => {
+            // 阻止事件传播到场景的其他部分
+            if (event && event.stopPropagation) {
+                event.stopPropagation();
+            }
+            console.log('Left button clicked');
+            
+            // 检查是否有球在屏幕上
+            if (!this.ball_pink.visible && !this.ball_purple.visible && this.cannonActive) {
+                console.log('Firing left ball');
+                this.handleResponse(0);
+            }
+        });
+
+        this.rightButton = this.add.rectangle(400, 550, 120, 120, 0x000000, 0.3);
+        this.rightButton.setInteractive();
+        this.rightButton.setDepth(1000); // 确保按钮在最上层
+        
+        // 为按钮添加专门的点击处理
+        this.rightButton.on('pointerdown', (pointer, localX, localY, event) => {
+            // 阻止事件传播到场景的其他部分
+            if (event && event.stopPropagation) {
+                event.stopPropagation();
+            }
+            console.log('Right button clicked');
+            
+            // 检查是否有球在屏幕上
+            if (!this.ball_pink.visible && !this.ball_purple.visible && this.cannonActive) {
+                console.log('Firing right ball');
+                this.handleResponse(1);
+            }
+        });
+
+        // Add text labels for the buttons
+        const leftText = this.add.text(100, 550, '1', { 
+            fontSize: '64px', 
+            fill: '#fff',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+        leftText.setDepth(1001); // 确保文字在按钮上方
+
+        const rightText = this.add.text(400, 550, '2', { 
+            fontSize: '64px', 
+            fill: '#fff',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+        rightText.setDepth(1001); // 确保文字在按钮上方
+
+        // 添加按钮边框
+        this.leftButton.setStrokeStyle(4, 0xffffff);
+        this.rightButton.setStrokeStyle(4, 0xffffff);
     }
 
     handleMissedConfidenceTrial(ball) {
@@ -637,9 +695,8 @@ class GameScene extends Phaser.Scene {
         this.ball_pink.update();
         this.ball_purple.update();
 
-        // if the 1 key is pressed
+        // Handle keyboard controls
         this.handleKeyPress("ONE", 0);
-        // if the 2 key is pressed
         this.handleKeyPress("TWO", 1);
     }
 
