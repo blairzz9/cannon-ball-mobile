@@ -36,9 +36,9 @@ class TrainingScene extends GameScene {
             1,
             15,
             "down",
-            "Click to continue"
+            "Tap anywhere to continue"
         );
-        this.instructionBoxCannon.setText("Use the mouse to aim the cannon");
+        this.instructionBoxCannon.setText("Tap the screen to aim the cannon\n\n👆 TAP ANYWHERE TO CONTINUE 👆");
         this.instructionBoxCannon.hide();
 
         // Instruction boxes for containers (left and right)
@@ -55,7 +55,7 @@ class TrainingScene extends GameScene {
             "Choose one!"
         );
         this.instructionBoxContainerLeft.setText(
-            "Press 1 to fire from the left"
+            "Press 1 or tap left button to fire from the left"
         );
 
         this.instructionBoxContainerRight = new InstructionBox(
@@ -71,7 +71,7 @@ class TrainingScene extends GameScene {
             "Choose one!"
         );
         this.instructionBoxContainerRight.setText(
-            "Press 2 to fire from the right"
+            "Press 2 or tap right button to fire from the right"
         );
         this.instructionBoxContainerLeft.hide();
         this.instructionBoxContainerRight.hide();
@@ -227,15 +227,29 @@ class TrainingScene extends GameScene {
         // Start training step
         this.stepTraining();
 
-        // Increment training phase on click
+        // Increment training phase on click - simplified version
         this.input.on(
             "pointerdown",
             function (pointer) {
+                console.log('Scene pointerdown detected at:', pointer.x, pointer.y);
+                
+                // Simple check - if we're in phase 2, don't handle scene clicks
+                if (this.trainingPhase === 2) {
+                    console.log('In phase 2, ignoring scene click');
+                    return;
+                }
+                
+                console.log('Processing as scene click');
+                // Handle as normal scene click
                 this.handleClick();
             },
             this
         );
 
+        // Also add a simple tap/touch event as backup
+        this.input.on('pointerup', function(pointer) {
+            console.log('Pointer up detected at:', pointer.x, pointer.y);
+        }, this);
 
         // Watch for "fired" event from the balls and step training when fired
         this.ball_pink.on(
@@ -258,11 +272,77 @@ class TrainingScene extends GameScene {
         this.trialInfo[0]["pinkExplode"] = 1;
         this.trialInfo[0]["purpleExplode"] = 1;
 
+        // Add touch buttons for mobile control (similar to GameScene)
+        this.leftButton = this.add.rectangle(100, 550, 120, 120, 0x000000, 0.3);
+        this.leftButton.setInteractive();
+        this.leftButton.setDepth(1000);
+        
+        this.leftButton.on('pointerdown', (pointer, localX, localY, event) => {
+            if (event && event.stopPropagation) {
+                event.stopPropagation();
+            }
+            console.log('Training: Left button clicked');
+            
+            if (!this.ball_pink.visible && !this.ball_purple.visible && this.cannonActive && this.trainingPhase === 2) {
+                console.log('Training: Firing left ball');
+                this.handleResponse(0);
+            }
+        });
+
+        this.rightButton = this.add.rectangle(400, 550, 120, 120, 0x000000, 0.3);
+        this.rightButton.setInteractive();
+        this.rightButton.setDepth(1000);
+        
+        this.rightButton.on('pointerdown', (pointer, localX, localY, event) => {
+            if (event && event.stopPropagation) {
+                event.stopPropagation();
+            }
+            console.log('Training: Right button clicked');
+            
+            if (!this.ball_pink.visible && !this.ball_purple.visible && this.cannonActive && this.trainingPhase === 2) {
+                console.log('Training: Firing right ball');
+                this.handleResponse(1);
+            }
+        });
+
+        // Add text labels for the buttons
+        const leftText = this.add.text(100, 550, '1', { 
+            fontSize: '64px', 
+            fill: '#fff',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+        leftText.setDepth(1001);
+
+        const rightText = this.add.text(400, 550, '2', { 
+            fontSize: '64px', 
+            fill: '#fff',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+        rightText.setDepth(1001);
+
+        // Add button styling
+        this.leftButton.setStrokeStyle(4, 0xffffff);
+        this.rightButton.setStrokeStyle(4, 0xffffff);
+
+        // Initially hide the buttons
+        this.leftButton.setVisible(false);
+        this.rightButton.setVisible(false);
+        leftText.setVisible(false);
+        rightText.setVisible(false);
+
+        // Store text references for later use
+        this.leftButtonText = leftText;
+        this.rightButtonText = rightText;
     }
 
     handleClick() {
-        if (this.timeSinceStepShown > 1000 && this.trainingPhase !== 2) {
+        console.log('Click detected, timeSinceStepShown:', this.timeSinceStepShown, 'trainingPhase:', this.trainingPhase);
+        // Remove time restriction for better mobile experience
+        if (this.trainingPhase !== 2) {
+            console.log('Stepping training...');
             this.stepTraining();
+        } else {
+            console.log('Click ignored - in phase 2 (use buttons instead)');
         }
     }
 
@@ -313,6 +393,12 @@ class TrainingScene extends GameScene {
                 this.instructionBoxCannon.hide();
                 this.instructionBoxContainerLeft.show();
                 this.instructionBoxContainerRight.show();
+                
+                // Show touch buttons for mobile users
+                this.leftButton.setVisible(true);
+                this.rightButton.setVisible(true);
+                this.leftButtonText.setVisible(true);
+                this.rightButtonText.setVisible(true);
                 break;
             case 3:
                 // Make sure we don't show a confidence trial somehow
@@ -323,10 +409,15 @@ class TrainingScene extends GameScene {
                 this.instructionBoxContainerRight.hide();
                 this.instructionBoxBalls.show();
 
+                // Hide touch buttons
+                this.leftButton.setVisible(false);
+                this.rightButton.setVisible(false);
+                this.leftButtonText.setVisible(false);
+                this.rightButtonText.setVisible(false);
+
                 // Stop alien from moving
                 this.alien.setMoving(false);
                 this.alien.visible = true;
-    
                 break;
             case 4:
                 // Hide balls instruction box and show explosions instruction box if MB
