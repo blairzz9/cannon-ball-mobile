@@ -312,31 +312,39 @@ class Cannon extends Phaser.GameObjects.Image {
     update() {
         // rotate cannon on mouse move - should be centered when mouse is in the middle of the screen
         if (!this.frozen) {
-            this.rotation =
-                Phaser.Math.Angle.BetweenPoints(
-                    this,
-                    this.scene.input.activePointer
-                ) + 1.5708;
-            // and same for the pointer
-            this.pointer.setRotation(
-                Phaser.Math.Angle.BetweenPoints(
-                    this.pointer.cannonPointer,
-                    this.scene.input.activePointer
-                ) + 1.5708
-            );
+            // 检查鼠标指针是否在按钮区域内
+            const pointer = this.scene.input.activePointer;
+            const isInLeftButton = pointer.x >= 40 && pointer.x <= 160 && pointer.y >= 490 && pointer.y <= 610;
+            const isInRightButton = pointer.x >= 340 && pointer.x <= 460 && pointer.y >= 490 && pointer.y <= 610;
+            
+            // 如果不在按钮区域内，才更新大炮角度
+            if (!isInLeftButton && !isInRightButton) {
+                this.rotation =
+                    Phaser.Math.Angle.BetweenPoints(
+                        this,
+                        pointer
+                    ) + 1.5708;
+                // and same for the pointer
+                this.pointer.setRotation(
+                    Phaser.Math.Angle.BetweenPoints(
+                        this.pointer.cannonPointer,
+                        pointer
+                    ) + 1.5708
+                );
 
-            // Make sure cannon is never rotated past 60 degrees
-            // if (this.rotation > 1.0472) {
-            //     this.rotation = 1.0472;
-            // } else if (this.rotation < -1.0472) {
-            //     this.rotation = -1.0472;
-            // }
+                // Make sure cannon is never rotated past 60 degrees
+                // if (this.rotation > 1.0472) {
+                //     this.rotation = 1.0472;
+                // } else if (this.rotation < -1.0472) {
+                //     this.rotation = -1.0472;
+                // }
 
-            // Make sure cannon is never rotated beyond 70 degrees
-            if (this.rotation > 1.22173) {
-                this.rotation = 1.22173;
-            } else if (this.rotation < -1.22173) {
-                this.rotation = -1.22173;
+                // Make sure cannon is never rotated beyond 70 degrees
+                if (this.rotation > 1.22173) {
+                    this.rotation = 1.22173;
+                } else if (this.rotation < -1.22173) {
+                    this.rotation = -1.22173;
+                }
             }
         }
 
