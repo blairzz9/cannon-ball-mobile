@@ -19,6 +19,12 @@ export default {
     width: 500, // Width of the game canvas in pixels
     height: 640, // Height of the game canvas in pixels
     backgroundColor: "#f0f0f0", // Background color of the game canvas
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 500,
+        height: 640
+    },
     scene: [intro, training, ready, game, end], // Array of scenes in the order they will be loaded
     physics: {
         default: "arcade", // Setting the default physics system to 'arcade'
